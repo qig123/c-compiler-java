@@ -23,6 +23,24 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(ExprParser.ExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ExprParser#equality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEquality(ExprParser.EqualityContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#relational}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRelational(ExprParser.RelationalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#add}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdd(ExprParser.AddContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ExprParser#mul}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

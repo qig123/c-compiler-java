@@ -59,6 +59,35 @@ public class App {
                 System.out.println("  cqo");
                 System.out.println("  idiv rdi");
                 break;
+            case ND_EQ:
+                System.out.println("  cmp rax, rdi");
+                System.out.println("  sete al");
+                System.out.println("  movzb rax, al");
+                break;
+            case ND_NE:
+                System.out.println("  cmp rax, rdi");
+                System.out.println("  setne al");
+                System.out.println("  movzb rax, al");
+                break;
+            case ND_LESS:
+                System.out.println("  cmp rax, rdi");
+                System.out.println("  setl al");
+                System.out.println("  movzb rax, al");
+                break;
+            case ND_LESS_EQ:
+                System.out.println("  cmp rax, rdi");
+                System.out.println("  setle al");
+                System.out.println("  movzb rax, al");
+                break;
+            case ND_MORE:
+                System.out.println("  cmp rdi, rax");
+                System.out.println("  setl al");
+                System.out.println("  movzb rax, al");
+                break;
+            case ND_MORE_EQ:
+                System.out.println("  cmp rdi, rax");
+                System.out.println("  setle al");
+                System.out.println("  movzb rax, al");
             default:
                 break;
         }

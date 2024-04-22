@@ -6,4 +6,10 @@ public enum NodeKind {
     ND_MUL,
     ND_DIV,
     ND_NUM,
+    ND_EQ,
+    ND_NE,
+    ND_LESS,
+    ND_LESS_EQ,
+    ND_MORE,
+    ND_MORE_EQ,
 }

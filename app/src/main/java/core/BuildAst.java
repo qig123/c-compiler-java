@@ -6,10 +6,13 @@ import core.ast.Exp;
 import core.ast.NodeKind;
 import parser.ExprBaseVisitor;
 import parser.ExprParser;
+import parser.ExprParser.AddContext;
+import parser.ExprParser.EqualityContext;
 import parser.ExprParser.ExprContext;
 import parser.ExprParser.Label_p0Context;
 import parser.ExprParser.Label_p1Context;
 import parser.ExprParser.MulContext;
+import parser.ExprParser.RelationalContext;
 import parser.ExprParser.StatContext;
 import parser.ExprParser.UnaryContext;
 
@@ -19,10 +22,64 @@ public class BuildAst extends ExprBaseVisitor<Exp> {
     public Exp visitStat(StatContext ctx) {
         return visit(ctx.expr());
     }
-    // expr: mul (op = '+' mul | op = '-' mul)*;
 
+    // expr: equality;
     @Override
     public Exp visitExpr(ExprContext ctx) {
+        return visit(ctx.equality());
+    }
+
+    // equality: relational ('==' relational | '!=' relational)*;
+    @Override
+    public Exp visitEquality(EqualityContext ctx) {
+        Exp ast = visit(ctx.relational(0));
+        TerminalNodeImpl t = null;
+        int i = 1;
+        for (int j = 1; j < ctx.getChildCount(); j++) {
+            Object obj = ctx.getChild(j);
+            if (obj instanceof TerminalNodeImpl) {
+                t = (TerminalNodeImpl) obj;
+            } else {
+                if (t.getSymbol().getType() == ExprParser.EQ) {
+                    ast = new Exp(ast, visit(ctx.relational(i)), NodeKind.ND_EQ);
+                } else {
+                    ast = new Exp(ast, visit(ctx.relational(i)), NodeKind.ND_NE);
+                }
+                i++;
+            }
+        }
+        return ast;
+    }
+
+    // relational: add ('<' add | '<=' add | '>' add | '>=' add)*;
+    @Override
+    public Exp visitRelational(RelationalContext ctx) {
+        Exp ast = visit(ctx.add(0));
+        TerminalNodeImpl t = null;
+        int i = 1;
+        for (int j = 1; j < ctx.getChildCount(); j++) {
+            Object obj = ctx.getChild(j);
+            if (obj instanceof TerminalNodeImpl) {
+                t = (TerminalNodeImpl) obj;
+            } else {
+                if (t.getSymbol().getType() == ExprParser.LT) {
+                    ast = new Exp(ast, visit(ctx.add(i)), NodeKind.ND_LESS);
+                } else if (t.getSymbol().getType() == ExprParser.LE) {
+                    ast = new Exp(ast, visit(ctx.add(i)), NodeKind.ND_LESS_EQ);
+                } else if (t.getSymbol().getType() == ExprParser.ME) { // 大于等于
+                    ast = new Exp(ast, visit(ctx.add(i)), NodeKind.ND_MORE_EQ);
+                } else {
+                    ast = new Exp(ast, visit(ctx.add(i)), NodeKind.ND_MORE);
+                }
+                i++;
+            }
+        }
+        return ast;
+    }
+
+    // add: mul ( '+' mul | '-' mul)*;
+    @Override
+    public Exp visitAdd(AddContext ctx) {
         Exp ast = visit(ctx.mul(0));
         TerminalNodeImpl t = null;
         int i = 1;
