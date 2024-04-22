@@ -11,17 +11,29 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link ExprParser#stat}.
+	 * Visit a parse tree produced by {@link ExprParser#program}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStat(ExprParser.StatContext ctx);
+	T visitProgram(ExprParser.ProgramContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStmt(ExprParser.StmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpr(ExprParser.ExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#assign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssign(ExprParser.AssignContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#equality}.
 	 * @param ctx the parse tree
@@ -66,4 +78,11 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLabel_p1(ExprParser.Label_p1Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code lable_ident}
+	 * labeled alternative in {@link ExprParser#primary}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLable_ident(ExprParser.Lable_identContext ctx);
 }

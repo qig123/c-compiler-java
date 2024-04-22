@@ -1,5 +1,8 @@
 package core;
 
+import java.util.List;
+
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import core.ast.Exp;
@@ -7,26 +10,66 @@ import core.ast.NodeKind;
 import parser.ExprBaseVisitor;
 import parser.ExprParser;
 import parser.ExprParser.AddContext;
+import parser.ExprParser.AssignContext;
 import parser.ExprParser.EqualityContext;
 import parser.ExprParser.ExprContext;
 import parser.ExprParser.Label_p0Context;
 import parser.ExprParser.Label_p1Context;
+import parser.ExprParser.Lable_identContext;
 import parser.ExprParser.MulContext;
+import parser.ExprParser.ProgramContext;
 import parser.ExprParser.RelationalContext;
-import parser.ExprParser.StatContext;
+import parser.ExprParser.StmtContext;
 import parser.ExprParser.UnaryContext;
+import java.util.ArrayList;
 
 public class BuildAst extends ExprBaseVisitor<Exp> {
+    private List<String> vars = new ArrayList<>();
+    private int offset = 0; // 变量保存index;
 
+    private void clearEnv() {
+        vars.clear();
+        offset = 0;
+    }
+
+    // program: stmt*;
     @Override
-    public Exp visitStat(StatContext ctx) {
+    public Exp visitProgram(ProgramContext ctx) {
+        clearEnv();
+        List<Exp> exps = new ArrayList<>();
+        for (StmtContext stmtContext : ctx.stmt()) {
+            exps.add(visit(stmtContext));
+        }
+        Exp exp = new Exp();
+        exp.setExps(exps);
+        return exp;
+    }
+
+    // stmt: expr ';'
+    @Override
+    public Exp visitStmt(StmtContext ctx) {
         return visit(ctx.expr());
     }
 
-    // expr: equality;
+    // expr: assign;
     @Override
     public Exp visitExpr(ExprContext ctx) {
-        return visit(ctx.equality());
+        return visit(ctx.assign());
+    }
+
+    // assign: equality ('=' assign)?;
+    @Override
+    public Exp visitAssign(AssignContext ctx) {
+        Exp ast = visit(ctx.equality());
+        for (int j = 1; j < ctx.getChildCount(); j++) {
+            Object obj = ctx.getChild(j);
+            if (obj instanceof TerminalNodeImpl) {
+                // t = (TerminalNodeImpl) obj;
+            } else {
+                ast = new Exp(ast, visit(ctx.assign()), NodeKind.ND_ASSIGN);
+            }
+        }
+        return ast;
     }
 
     // equality: relational ('==' relational | '!=' relational)*;
@@ -152,6 +195,18 @@ public class BuildAst extends ExprBaseVisitor<Exp> {
     @Override
     public Exp visitLabel_p1(Label_p1Context ctx) {
         return visit(ctx.expr());
+    }
+
+    @Override
+    public Exp visitLable_ident(Lable_identContext ctx) {
+        Token t = ctx.start;
+        String x = t.getText();
+        char charAt = x.charAt(0);
+        char b = 'a';
+        int off = (charAt - b + 1) * 8;
+        Exp e = new Exp(NodeKind.ND_LVAR, off);
+        return e;
+
     }
 
 }

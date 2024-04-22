@@ -3,44 +3,63 @@
  */
 package core;
 
+import java.util.List;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import core.ast.Exp;
-import core.ast.NodeKind;
 import parser.ExprLexer;
 import parser.ExprParser;
 
 public class App {
 
     public static void main(String[] args) {
-        // CharStream input = CharStreams.fromString("- -10");
+        // CharStream input = CharStreams.fromString("a=4;");
         if (args == null) {
             System.err.println("args == NULL");
             return;
         }
         CharStream input = CharStreams.fromString(args[0]);
+
         ExprLexer exprLexer = new ExprLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(exprLexer);
         ExprParser parser = new ExprParser(tokens);
-        ParseTree tree = parser.stat();
+        ParseTree tree = parser.program();
         BuildAst makeAst = new BuildAst();
         Exp ast = makeAst.visit(tree);
-        System.out.println(".intel_syntax noprefix");
-        System.out.println(".globl main");
-        System.out.println("main:");
-        gen(ast);
-        System.out.println("  pop rax");
-        System.out.println("  ret");
+
+        genCode(ast);
+
     }
 
     private static void gen(Exp exp) {
-        if (exp.getKind() == NodeKind.ND_NUM) {
-            System.out.println("  push " + exp.getValue());
-            return;
+
+        switch (exp.getKind()) {
+            case ND_NUM:
+                System.out.println("  push " + exp.getValue());
+                return;
+            case ND_LVAR:
+                gen_lval(exp);
+                System.out.println("  pop rax");
+                System.out.println("  mov rax, [rax]");
+                System.out.println("  push rax");
+                return;
+            case ND_ASSIGN:
+                gen_lval(exp.getLeft());
+                gen(exp.getRight());
+
+                System.out.println("  pop rdi");
+                System.out.println("  pop rax");
+                System.out.println("  mov [rax], rdi");
+                System.out.println("  push rdi");
+                return;
+            default:
+                break;
         }
+
         gen(exp.getLeft());
         gen(exp.getRight());
         System.out.println("  pop rdi");
@@ -88,10 +107,36 @@ public class App {
                 System.out.println("  cmp rdi, rax");
                 System.out.println("  setle al");
                 System.out.println("  movzb rax, al");
+
             default:
                 break;
         }
         System.out.println("  push rax");
+    }
+
+    private static void gen_lval(Exp node) {
+        System.out.println("  mov rax, rbp");
+        System.out.println("  sub rax, " + node.getOffset());
+        System.out.println("  push rax");
+    }
+
+    private static void genCode(Exp ast) {
+        System.out.println(".intel_syntax noprefix");
+        System.out.println(".globl main");
+        System.out.println("main:");
+
+        System.out.println("  push rbp");
+        System.out.println("  mov rbp, rsp");
+        System.out.println("  sub rsp, 208");
+        List<Exp> exps = ast.getExps();
+        for (Exp exp : exps) {
+            gen(exp);
+            System.out.println("  pop rax");
+
+        }
+        System.out.println("  mov rsp, rbp");
+        System.out.println("  pop rbp");
+        System.out.println("  ret");
     }
 
 }

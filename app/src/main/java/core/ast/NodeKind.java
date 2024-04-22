@@ -12,4 +12,6 @@ public enum NodeKind {
     ND_LESS_EQ,
     ND_MORE,
     ND_MORE_EQ,
+    ND_ASSIGN,
+    ND_LVAR,
 }

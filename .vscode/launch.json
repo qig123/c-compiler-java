@@ -17,7 +17,7 @@
             "request": "launch",
             "input": "${fileDirname}/input.txt",
             "grammar": "${file}",
-            "startRule": "stat",
+            "startRule": "program",
             "printParseTree": true,
             "visualParseTree": true
         }
