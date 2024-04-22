@@ -1,11 +1,9 @@
 grammar Expr;
-stat: expr # label_stat;
-expr:
-	expr op = ('*' | '/') expr		# label_mul_div
-	| expr op = ('+' | '-') expr	# label_add_sub
-	| INT							# label_int
-	| '(' expr ')'					# label_parens;
-
+stat: expr;
+expr: mul ( '+' mul | '-' mul)*;
+mul: unary ('*' unary | '/' unary)*;
+unary: (op = '+' | op = '-')* primary;
+primary: INT # label_p0 | '(' expr ')' # label_p1;
 ID: [a-zA-Z]+; // match identifiers
 INT: [0-9]+;
 WS: [ \t]+ -> skip;

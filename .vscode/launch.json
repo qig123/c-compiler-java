@@ -5,12 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "core.App",
+            "projectName": "app"
+        },
+        {
             "name": "Debug ANTLR4 grammar",
             "type": "antlr-debug",
             "request": "launch",
             "input": "${fileDirname}/input.txt",
             "grammar": "${file}",
-            "startRule": "prog",
+            "startRule": "stat",
             "printParseTree": true,
             "visualParseTree": true
         }

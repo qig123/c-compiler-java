@@ -7,15 +7,16 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import core.ast.Exp;
+import core.ast.NodeKind;
 import parser.ExprLexer;
 import parser.ExprParser;
 
 public class App {
 
     public static void main(String[] args) {
-        // CharStream input = CharStreams.fromString("2*3+4*5");
+        // CharStream input = CharStreams.fromString("- -10");
         if (args == null) {
             System.err.println("args == NULL");
             return;
@@ -25,11 +26,43 @@ public class App {
         CommonTokenStream tokens = new CommonTokenStream(exprLexer);
         ExprParser parser = new ExprParser(tokens);
         ParseTree tree = parser.stat();
-        ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker
+        BuildAst makeAst = new BuildAst();
+        Exp ast = makeAst.visit(tree);
+        System.out.println(".intel_syntax noprefix");
+        System.out.println(".globl main");
+        System.out.println("main:");
+        gen(ast);
+        System.out.println("  pop rax");
+        System.out.println("  ret");
+    }
 
-        GenCoder evaluator = new GenCoder();
-        walker.walk(evaluator, tree);
-
+    private static void gen(Exp exp) {
+        if (exp.getKind() == NodeKind.ND_NUM) {
+            System.out.println("  push " + exp.getValue());
+            return;
+        }
+        gen(exp.getLeft());
+        gen(exp.getRight());
+        System.out.println("  pop rdi");
+        System.out.println("  pop rax");
+        switch (exp.getKind()) {
+            case ND_ADD:
+                System.out.println("  add rax, rdi");
+                break;
+            case ND_SUB:
+                System.out.println("  sub rax, rdi");
+                break;
+            case ND_MUL:
+                System.out.println("  imul rax, rdi");
+                break;
+            case ND_DIV:
+                System.out.println("  cqo");
+                System.out.println("  idiv rdi");
+                break;
+            default:
+                break;
+        }
+        System.out.println("  push rax");
     }
 
 }
