@@ -12,7 +12,7 @@ primary:
 	INT				# label_p0
 	| '(' expr ')'	# label_p1
 	| IDENT			# lable_ident;
-IDENT: [a-z]+; // match identifiers
+IDENT: [a-zA-Z_"] ([a-zA-Z_0-9])*; // match identifiers
 INT: [0-9]+;
 WS: [ \t]+ -> skip;
 MUL: '*'; // assigns token name to '*' used above in grammar

@@ -17,7 +17,7 @@ import parser.ExprParser;
 public class App {
 
     public static void main(String[] args) {
-        // CharStream input = CharStreams.fromString("a=4;");
+        // CharStream input = CharStreams.fromString("c=1;b=2;c+b;");
         if (args == null) {
             System.err.println("args == NULL");
             return;

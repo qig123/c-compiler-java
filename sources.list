@@ -7,6 +7,7 @@
 /home/guo/javaplay/w1/app/src/main/java/core/ast/Div.java
 /home/guo/javaplay/w1/app/src/main/java/core/ast/Mul.java
 /home/guo/javaplay/w1/app/src/main/java/core/ast/Ast.java
+/home/guo/javaplay/w1/app/src/main/java/core/Var.java
 /home/guo/javaplay/w1/app/src/main/java/core/App.java
 /home/guo/javaplay/w1/app/src/main/java/core/BuildAst.java
 /home/guo/javaplay/w1/app/src/main/java/parser/ExprBaseVisitor.java

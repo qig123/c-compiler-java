@@ -21,11 +21,11 @@ assert() {
     exit 1
   fi
 }
-
+assert 3   'c=1;b=2;c+b;'
 assert 1 '0;1;'
 assert 42 '42;'
 assert 21 '5+20-4;'
-assert 41   'c=40;d=1;c+d;'
+assert 1   'c=4;d=1;'
 assert 41 ' 12 + 34 - 5; '
 assert 47 '5+6*7;'
 assert 15 '5*(9-6);'
@@ -58,4 +58,10 @@ assert 0 '1>2;'
 assert 1 '1>=0;'
 assert 1 '1>=1;'
 assert 0 '1>=2;'
+
+assert 3   'c=1;b=2;c+b;'
+assert 1   'coo=1;b=2;coo;'
+assert 7 'f=3; f+4;'
+assert 8 'foo123=3; bar=5;foo123+bar;'
+
 echo OK

@@ -24,7 +24,7 @@ import parser.ExprParser.UnaryContext;
 import java.util.ArrayList;
 
 public class BuildAst extends ExprBaseVisitor<Exp> {
-    private List<String> vars = new ArrayList<>();
+    private List<Var> vars = new ArrayList<>();
     private int offset = 0; // 变量保存index;
 
     private void clearEnv() {
@@ -201,12 +201,31 @@ public class BuildAst extends ExprBaseVisitor<Exp> {
     public Exp visitLable_ident(Lable_identContext ctx) {
         Token t = ctx.start;
         String x = t.getText();
-        char charAt = x.charAt(0);
-        char b = 'a';
-        int off = (charAt - b + 1) * 8;
-        Exp e = new Exp(NodeKind.ND_LVAR, off);
-        return e;
+        int findIndex = findVars(x);
+        if (findIndex != -1) {
+            Exp e = new Exp(NodeKind.ND_LVAR, findIndex);
+            return e;
+        } else {
+            Var v = creatVar(x, offset);
+            vars.add(v);
+            Exp e = new Exp(NodeKind.ND_LVAR, offset);
+            offset += 8;
+            return e;
+        }
 
+    }
+
+    private Var creatVar(String name, int offset) {
+        return new Var(offset, name);
+    }
+
+    private int findVars(String name) {
+        for (Var var : vars) {
+            if (var.getName().equals(name)) {
+                return var.getOffset();
+            }
+        }
+        return -1;
     }
 
 }
