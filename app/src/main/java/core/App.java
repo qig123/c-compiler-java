@@ -17,7 +17,7 @@ import parser.ExprParser;
 public class App {
 
     public static void main(String[] args) {
-        // CharStream input = CharStreams.fromString("c=1;b=2;c+b;");
+        // CharStream input = CharStreams.fromString("if (0) return 2; return 3;");
         if (args == null) {
             System.err.println("args == NULL");
             return;
@@ -34,6 +34,8 @@ public class App {
         genCode(ast);
 
     }
+
+    private static int labelseq = 1;
 
     private static void gen(Exp exp) {
 
@@ -56,6 +58,34 @@ public class App {
                 System.out.println("  mov [rax], rdi");
                 System.out.println("  push rdi");
                 return;
+            case ND_RETURN:
+                gen(exp.getLeft());
+                System.out.println("  pop rax");
+                System.out.println("  mov rsp, rbp");
+                System.out.println("  pop rbp");
+                System.out.println("  ret");
+                return;
+            case ND_IF:
+                int seq = labelseq++;
+                if (exp.getElse_exp() != null) {
+                    gen(exp.getCond_exp());
+                    System.out.println("  pop rax");
+                    System.out.println("  cmp rax, 0");
+                    System.out.println("  je  .L.else." + seq);
+                    gen(exp.getThen_exp());
+                    System.out.println("  jmp .L.end." + seq);
+                    System.out.println(".L.else." + seq + ":");
+                    gen(exp.getElse_exp());
+                    System.out.println(".L.end." + seq + ":");
+                } else {
+                    gen(exp.getCond_exp());
+                    System.out.println("  pop rax");
+                    System.out.println("  cmp rax, 0");
+                    System.out.println("  je  .L.end." + seq);
+                    gen(exp.getThen_exp());
+                    System.out.println(".L.end." + seq + ":");
+                    return;
+                }
             default:
                 break;
         }

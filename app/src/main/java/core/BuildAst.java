@@ -19,6 +19,9 @@ import parser.ExprParser.Lable_identContext;
 import parser.ExprParser.MulContext;
 import parser.ExprParser.ProgramContext;
 import parser.ExprParser.RelationalContext;
+import parser.ExprParser.Stat_expr0Context;
+import parser.ExprParser.Stat_ifContext;
+import parser.ExprParser.Stat_return_expContext;
 import parser.ExprParser.StmtContext;
 import parser.ExprParser.UnaryContext;
 import java.util.ArrayList;
@@ -47,8 +50,31 @@ public class BuildAst extends ExprBaseVisitor<Exp> {
 
     // stmt: expr ';'
     @Override
-    public Exp visitStmt(StmtContext ctx) {
+    public Exp visitStat_expr0(Stat_expr0Context ctx) {
         return visit(ctx.expr());
+    }
+
+    // 'return' expr ';'
+    @Override
+    public Exp visitStat_return_exp(Stat_return_expContext ctx) {
+        // 生成只有左子树的表达式
+        return new Exp(visit(ctx.expr()), null, NodeKind.ND_RETURN);
+    }
+
+    // 'if' '(' expr ')' stmt ('else' stmt)?
+    @Override
+    public Exp visitStat_if(Stat_ifContext ctx) {
+        Object obj = ctx.stmt(1);
+        Exp exp = new Exp();
+        exp.setKind(NodeKind.ND_IF);
+        exp.setCond_exp(visit(ctx.expr()));
+        exp.setThen_exp(visit(ctx.stmt(0)));
+        if (obj == null) {
+            //
+        } else {
+            exp.setElse_exp(visit(ctx.stmt(1)));
+        }
+        return exp;
     }
 
     // expr: assign;

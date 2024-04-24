@@ -14,4 +14,6 @@ public enum NodeKind {
     ND_MORE_EQ,
     ND_ASSIGN,
     ND_LVAR,
+    ND_RETURN,
+    ND_IF,
 }

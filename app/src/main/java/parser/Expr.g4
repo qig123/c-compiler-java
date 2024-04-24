@@ -1,6 +1,9 @@
 grammar Expr;
 program: stmt*;
-stmt: expr ';';
+stmt:
+	expr ';'								# stat_expr0
+	| 'return' expr ';'						# stat_return_exp
+	| 'if' '(' expr ')' stmt ('else' stmt)?	# stat_if;
 expr: assign;
 assign: equality ('=' assign)?;
 equality: relational (EQ relational | NE relational)*;
